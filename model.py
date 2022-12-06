@@ -111,6 +111,7 @@ def plot_survival():
             ) for item in st.session_state['patients']
         ]
     )
+    # 画图
     if st.session_state['display']:
         fig = px.line(pd_data, x="Time", y="Survival", color='Patients', range_y=[0, 1])
     else:
@@ -118,7 +119,7 @@ def plot_survival():
                       range_y=[0, 1])
     fig.update_layout(title={
                           'text': 'Estimated Survival Probability',
-                          'y': 0.9,
+                          'y': 1,
                           'x': 0.5,
                           'xanchor': 'center',
                           'yanchor': 'top',
@@ -126,6 +127,7 @@ def plot_survival():
                               size=25
                           )
                       },
+                      # 背景颜色设置
                       plot_bgcolor="LightGrey",
                       xaxis_title="Time, month",
                       yaxis_title="Survival probability",
@@ -174,9 +176,15 @@ def predict():
                                   'Surgery_group_No_Surgery', 'Surgery_group_Other_Surgery',
                                   'Radiation_Yes']).T
     survival = model.predict_survival_function(test_df)
+    x_axis = []
+    for inx in survival[0].x:
+        if inx <= 155:
+            x_axis.append(inx)
+        else:
+            break
     data = {
-        'survival': survival[0].y,
-        'times': [i for i in range(0, len(survival[0].y))],
+        'survival': survival[0].y[:len(x_axis)],
+        'times': [i for i in x_axis],
         'No': len(st.session_state['patients']) + 1,
         'arg': {key: st.session_state[key] for key in input_keys},
         '3-year': survival[0].y[35],
